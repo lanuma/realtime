@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masjid Terdekat</title>
+</head>
+
+<body>
+    <input type="text" name="wilayah" id="wilayah" placeholder="Masukkan Wilayah">
+    <input type="button" value="Wilayah" id="btnWilayah">
+    <input type="button" value="Get My Location" id="location">
+    <div id="mapsDiv"></div>
+
+    <script>
+        const locationButton = document.getElementById('location')
+        const wilayahBtn = document.getElementById('btnWilayah')
+        const wilayahInput = document.getElementById('wilayah')
+        const mapsDiv = document.getElementById('mapsDiv')
+
+        function createMaps({center='', wilayah=''}={})
+        {
+            let mapsUrl = "https://www.google.com/maps/embed/v1/search?key=AIzaSyDSq3asqyQU3MvDNowgu51FrPmlFiWo5hY&q=masjid+terdekat" + wilayah +"&zoom=13"
+
+            if(center) {
+                mapsUrl = mapsUrl + '&center=' + center
+            }
+            var iframe = document.createElement("iframe")
+            iframe.setAttribute('width', 850)
+            iframe.setAttribute('height', 550)
+            iframe.setAttribute('frameborder', 0)
+            iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade')
+            iframe.setAttribute('allowfullscreen', '')
+            iframe.setAttribute('src', mapsUrl)
+            iframe.setAttribute('id', 'mapsFrame')
+            iframe.style = 'border:0'
+            mapsDiv.innerHTML = ""
+            mapsDiv.appendChild(iframe)
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            createMaps()
+        })
+
+        locationButton.addEventListener('click', function() {
+            navigator.geolocation.getCurrentPosition(function (location) {
+                createMaps({ center: location.coords.latitude + ',' + location.coords.longitude })
+
+                console.log(location.coords.latitude);
+                console.log(location.coords.longitude);
+                console.log(location);
+            });
+        })
+
+        wilayahBtn.addEventListener('click', function() {
+            createMaps({wilayah: '+' + wilayahInput.value})
+        })
+    </script>
+</body>
+
+</html>
