@@ -13,6 +13,8 @@
     <input type="button" value="Get My Location" id="location">
     <div id="mapsDiv"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js" defer></script>
+
     <script>
         const locationButton = document.getElementById('location')
         const wilayahBtn = document.getElementById('btnWilayah')
@@ -21,7 +23,7 @@
 
         function createMaps({center='', wilayah=''}={})
         {
-            let mapsUrl = "https://www.google.com/maps/embed/v1/search?key=AIzaSyDSq3asqyQU3MvDNowgu51FrPmlFiWo5hY&q=masjid+terdekat" + wilayah +"&zoom=13"
+            let mapsUrl = "https://www.google.com/maps/embed/v1/search?key=AIzaSyDSq3asqyQU3MvDNowgu51FrPmlFiWo5hY&zoom=13&q=masjid+terdekat " + wilayah
 
             if(center) {
                 mapsUrl = mapsUrl + '&center=' + center
@@ -39,17 +41,35 @@
             mapsDiv.appendChild(iframe)
         }
 
+        function reverseGeocoding(longlat)
+        {
+            return axios.get('https://maps.googleapis.com/maps/api/geocode/json?latlng='+longlat+'&key=AIzaSyDSq3asqyQU3MvDNowgu51FrPmlFiWo5hY&result_type=street_address')
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             createMaps()
         })
 
         locationButton.addEventListener('click', function() {
             navigator.geolocation.getCurrentPosition(function (location) {
-                createMaps({ center: location.coords.latitude + ',' + location.coords.longitude })
+                let coordinate = location.coords.latitude + ',' + location.coords.longitude
 
-                console.log(location.coords.latitude);
-                console.log(location.coords.longitude);
-                console.log(location);
+                reverseGeocoding(coordinate)
+                .then(function (response) {
+                    let data = response.data.results
+
+                    if (data.length > 0) {
+                        console.log(data[0].formatted_address)
+                        createMaps({
+                            center: coordinate,
+                            wilayah: data[0].formatted_address
+                        })
+                    }
+                })
+                .catch(function (error) {
+                    // handle error
+                    console.log(error);
+                })
             });
         })
 
